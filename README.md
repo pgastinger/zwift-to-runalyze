@@ -1,6 +1,9 @@
-# Zwift to Garmin Activity Transfer
+# Zwift to Runalyze Activity Transfer
 
-A Python application that automatically transfers cycling activities from Zwift to Garmin Connect with proper device spoofing to ensure compatibility.
+A Python application that automatically transfers cycling activities from Zwift to Runalyze
+
+TODO: update documentation
+
 
 ## 🏗️ Architecture
 

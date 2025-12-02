@@ -47,8 +47,8 @@ def main():
 
     # Process the latest activity
     
-    success = processor.process_latest_activity()
-#    success = processor.process_last_x_activities(5)
+#    success = processor.process_latest_activity()
+    success = processor.process_last_x_activities(2)
 
     #success = processor.process_activities_since_date("2025-10-15")
     if success:

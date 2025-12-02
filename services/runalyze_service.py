@@ -30,7 +30,6 @@ class RunalyzeService:
         #print(f"Would upload file {file_path}")
 
         try:
-            print(f"Upload file {file_path}")
             with open(file_path, 'rb') as f:
                 files = {
                     'file': (os.path.basename(file_path), f, 'application/octet-stream')
