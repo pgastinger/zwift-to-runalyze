@@ -17,7 +17,8 @@ class FitFileService:
     def __init__(self):
         """Initialize FitFileService."""
         self.logger = logging.getLogger(__name__)
-
+        self.logger.info("RunalyzeService initialized successfully.")
+        
     def modify_device_info(self, fit_file_path: str,
                           manufacturer: Optional[int] = None,
                           product: Optional[int] = None,
@@ -40,6 +41,9 @@ class FitFileService:
         if not os.path.exists(fit_file_path):
             raise FileNotFoundError(f"FIT file not found: {fit_file_path}")
 
+
+
+
         # Set defaults
         manufacturer = manufacturer or Manufacturer.GARMIN.value
         product = product or GarminProduct.EDGE_530.value
@@ -48,29 +52,23 @@ class FitFileService:
         self.logger.info(f"Modifying FIT file: {fit_file_path}")
 
         try:
-            content = FitFile.from_file(fit_file_path)
+            fit_file = FitFile.from_file(fit_file_path)
 
-            # Set auto_define to true, so that the builder creates the required Definition Messages
-            builder = FitFileBuilder(auto_define=True, min_string_size=50)
+            builder = FitFileBuilder(auto_define=False)
 
-            for record in content.records:
+            for record in fit_file.records:
                 message = record.message
-                if isinstance(message, FileIdMessage):
-                    message.manufacturer = manufacturer
-                    message.product = product
-                elif isinstance(message, DeviceInfoMessage):
-                    message.manufacturer = manufacturer
-                    message.product = product
-                    message.software_version = software_version
-                builder.add(message)
+                include_record = True
+                if include_record:
+                    builder.add(message)
 
-            # Build the FIT file object
-            fit_file = builder.build()
 
             # Save the modified FIT file
             temp_dir = tempfile.gettempdir()
             modified_fit_file_path = os.path.join(temp_dir, "modified_" + os.path.basename(fit_file_path))
-            fit_file.to_file(modified_fit_file_path)
+
+            modified_file = builder.build()
+            modified_file.to_file(modified_fit_file_path)
 
             self.logger.info(f"Modified FIT file saved to {modified_fit_file_path}")
             return modified_fit_file_path

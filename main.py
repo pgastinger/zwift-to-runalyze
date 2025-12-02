@@ -3,21 +3,26 @@
 import sys
 import os
 import logging
+
 from dotenv import load_dotenv
 from services.zwift_service import ZwiftService
 from services.fit_file_service import FitFileService
 from services.garmin_service import GarminService
 from services.activity_processor import ActivityProcessor
+from services.runalyze_service import RunalyzeService
+
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 
 def main():
     """Main function to orchestrate the activity transfer process."""
     # Load environment variables from .env file
+    logger = logging.getLogger(__name__)
+    logger.info("test")
     load_dotenv()
 
     # Get credentials from environment variables
@@ -25,6 +30,7 @@ def main():
     zwift_password = os.getenv("ZWIFT_PASSWORD")
     garmin_username = os.getenv("GARMIN_USERNAME")
     garmin_password = os.getenv("GARMIN_PASSWORD")
+    runalyze_token = os.getenv("RUNANLYZE_TOKEN")
 
     # Validate required environment variables
     if not all([zwift_username, zwift_password, garmin_username, garmin_password]):
@@ -33,18 +39,22 @@ def main():
     # Initialize services with dependency injection
     zwift_service = ZwiftService(zwift_username, zwift_password)
     fit_file_service = FitFileService()
-    garmin_service = GarminService(garmin_username, garmin_password)
+#    garmin_service = GarminService(garmin_username, garmin_password)
+    runalyze_service = RunalyzeService(runalyze_token)
 
     # Create the main processor
-    processor = ActivityProcessor(zwift_service, fit_file_service, garmin_service)
+    processor = ActivityProcessor(zwift_service, runalyze_service, fit_file_service)
 
     # Process the latest activity
+    
     success = processor.process_latest_activity()
+#    success = processor.process_last_x_activities(5)
 
+    #success = processor.process_activities_since_date("2025-10-15")
     if success:
-        print("✅ Activity successfully transferred from Zwift to Garmin!")
+        logger.info("✅ Activity successfully transferred from Zwift to Runalyze!")
     else:
-        print("❌ Failed to transfer activity. Check the logs for details.")
+        logger.error("❌ Failed to transfer activity. Check the logs for details.")
         sys.exit(1)
 
 

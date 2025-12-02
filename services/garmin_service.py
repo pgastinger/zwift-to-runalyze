@@ -9,6 +9,8 @@ from garminconnect import (
     GarminConnectConnectionError
 )
 
+TOKEN_FILE="~/.garth"
+
 
 class GarminService:
     """Service for interacting with Garmin Connect."""
@@ -22,7 +24,7 @@ class GarminService:
         """
         self.username = username
         self.password = password
-        self.client: Garmin = Garmin(username, password)
+        self.client: Garmin = Garmin()
         self.logger = logging.getLogger(__name__)
         self._authenticated = False
 
@@ -38,7 +40,7 @@ class GarminService:
         self.logger.info("Logging in to Garmin Connect...")
 
         try:
-            self.client.login()
+            self.client.login("/home/peter/.garth")
             self._authenticated = True
             self.logger.info("Successfully authenticated with Garmin Connect")
         except GarminConnectAuthenticationError:
@@ -72,6 +74,7 @@ class GarminService:
         self.logger.info(f"Uploading {fit_file_path} to Garmin Connect...")
 
         try:
+            print(fit_file_path)
             response = self.client.upload_activity(fit_file_path)
             self.logger.info("Upload successful")
             self.logger.debug(f"Upload response: {response}")
