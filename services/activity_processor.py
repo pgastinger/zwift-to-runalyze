@@ -12,7 +12,7 @@ class ActivityProcessor:
     """Main orchestrator for processing activities from Zwift to Garmin."""
 
     def __init__(self,
-                 zwift_service: ZwiftService, runalyze_service: RunalyzeService, fit_file_service:FitFileService):
+                 zwift_service: ZwiftService, garmin_service: GarminService, fit_file_service:FitFileService):
         """Initialize ActivityProcessor with injected services.
 
         Args:
@@ -22,8 +22,8 @@ class ActivityProcessor:
         """
         self.zwift_service = zwift_service
         self.fit_file_service = fit_file_service
-#        self.garmin_service = garmin_service
-        self.runalyze_service = runalyze_service
+        self.garmin_service = garmin_service
+#        self.runalyze_service = runalyze_service
         self.logger = logging.getLogger(__name__)
 
 
@@ -34,6 +34,7 @@ class ActivityProcessor:
             True if successful, False otherwise
         """
         original_file_path: Optional[str] = None
+        modified_file_path: Optional[str] = None        
 
         try:
             # Step 1: Authenticate with Zwift and download activity
@@ -44,9 +45,10 @@ class ActivityProcessor:
             if not original_file_path:
                 self.logger.info("No activities found to process")
                 return False
+            
+            modified_file_path = self.fit_file_service.modify_device_info(original_file_path)
 
-
-            response = self.runalyze_service.upload_file_to_runalyze(original_file_path)
+            response = self.garmin_service.upload_file_to_runalyze(original_file_path)
 
             self.logger.info("Activity processing completed successfully")
             self.logger.debug(f"Upload response: {response}")
@@ -59,8 +61,8 @@ class ActivityProcessor:
         finally:
            if original_file_path:
                self.fit_file_service.cleanup_file(original_file_path)
-        #    if modified_file_path:
-        #        self.fit_file_service.cleanup_file(modified_file_path)
+           if modified_file_path:
+               self.fit_file_service.cleanup_file(modified_file_path)
 
     def process_last_x_activities(self, x:int) -> bool:
         """Process the latest activity from Zwift to Garmin.

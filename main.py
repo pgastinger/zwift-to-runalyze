@@ -39,16 +39,16 @@ def main():
     # Initialize services with dependency injection
     zwift_service = ZwiftService(zwift_username, zwift_password)
     fit_file_service = FitFileService()
-#    garmin_service = GarminService(garmin_username, garmin_password)
-    runalyze_service = RunalyzeService(runalyze_token)
+    garmin_service = GarminService(garmin_username, garmin_password)
+    #runalyze_service = RunalyzeService(runalyze_token)
 
     # Create the main processor
-    processor = ActivityProcessor(zwift_service, runalyze_service, fit_file_service)
+    processor = ActivityProcessor(zwift_service, garmin_service, fit_file_service)
 
     # Process the latest activity
     
-#    success = processor.process_latest_activity()
-    success = processor.process_last_x_activities(2)
+    success = processor.process_latest_activity()
+#    success = processor.process_last_x_activities(2)
 
     #success = processor.process_activities_since_date("2025-10-15")
     if success:
